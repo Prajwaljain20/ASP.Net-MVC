@@ -7,51 +7,49 @@ on:
   workflow_dispatch:
 
 env:
+  AZURE_WEBAPP_NAME: first-mvc-app
   DOTNET_VERSION: '10.0.x'
-  PROJECT_PATH: './FirstMVC/FirstMVC.fsproj'
-  PUBLISH_PATH: './publish'
-  WEBSITE_PATH: 'C:\inetpub\wwwroot\FirstMVC'
-  IIS_SITE_NAME: 'FirstMVC'
 
 jobs:
-  deploy:
-    runs-on: self-hosted
+  build:
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           include-prerelease: true
 
       - name: Restore
-        run: dotnet restore ${{ env.PROJECT_PATH }}
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --output ${{ env.PUBLISH_PATH }}
+        run: dotnet publish --configuration Release --output ./publish
 
-      - name: Stop IIS Site
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Stop-Website -Name "${{ env.IIS_SITE_NAME }}"
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: ./publish
 
-      - name: Copy Files
-        shell: powershell
-        run: |
-          Copy-Item `
-            "${{ github.workspace }}\publish\*" `
-            "${{ env.WEBSITE_PATH }}" `
-            -Recurse -Force
+  deploy:
+    runs-on: windows-latest
+    needs: build
 
-      - name: Start IIS Site
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-          Start-Website -Name "${{ env.IIS_SITE_NAME }}"
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app
+          path: ./publish
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./publish
