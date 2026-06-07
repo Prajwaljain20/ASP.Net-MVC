@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="FirstMVC">
+    <resource name="FSharpSignatureData.FirstMVC" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.FirstMVC" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.FirstMVC" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.FirstMVC" action="remove"></resource>
+    <resource name="FSharpOptimizationData.FirstMVC" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.FirstMVC" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.FirstMVC" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.FirstMVC" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.FirstMVC" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.FirstMVC" action="remove"></resource>
+  </assembly>
+</linker>
